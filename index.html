@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>身高攻略大作戰 — 互動版</title>
+
+    <!-- Tailwind Play CDN (快速開發用) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+      body { font-family: 'Noto Sans TC', sans-serif; }
+      .font-pixel { font-family: 'DotGothic16', sans-serif; }
+      .animate-bounce-slow { animation: bounce 2s infinite; }
+      .animate-fade-in { animation: fadeIn 0.45s ease-out forwards; }
+      @keyframes bounce { 0%,100% { transform: translateY(-5%);} 50% { transform: translateY(0);} }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+      /* small utilities */
+      .progress-track { background: linear-gradient(90deg,#e6f0ff,#f0fff4); border-radius: 999px; }
+      .progress-fill { height: 18px; border-radius: 999px; transition: width 700ms ease; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    </style>
+  </head>
+  <body class="bg-slate-50 min-h-screen text-slate-800 antialiased">
+    <div id="root"></div>
+
+    <!-- React + ReactDOM UMD builds -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX in-browser (development/demo use) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // --- Data (跟原本類似) ---
+    const CHARACTERS = {
+      BROTHER: {
+        id: 'brother',
+        name: '哥哥',
+        baseHeight: 168.6,
+        boneAge: '骨齡 16 歲',
+        mission: '【最終衝刺】',
+        desc: '生長板即將關閉，剩下最後3個月的黃金衝刺時間，目標突破170大關！',
+        status: 'CRITICAL (剩餘 5%)',
+        strategy: '睡眠是唯一解！藥物只是輔助。週末兩天認真運動，拚多長1-2公分。'
+      },
+      YOUNGER: {
+        id: 'younger',
+        name: '弟弟',
+        baseHeight: 150.0,
+        boneAge: '骨齡 13.3 歲',
+        mission: '【黃金起點】',
+        desc: '處於國一、二的黃金成長期。近5個月長高4.1cm。所有選擇影響最終結局！',
+        status: 'ACTIVE (黃金期)',
+        strategy: '忌口最優先！炸的甜的通通不能碰。每週4次激烈運動是超越哥哥的秘密武器。'
+      }
+    };
+
+    const ITEMS = [
+      { id: 'sleep', name: '黃金睡眠藥水', emoji: '🌙', effect: '+80% 身高潛力', desc: '晚上10:30前必須完全睡著。' },
+      { id: 'shoes', name: '活力跳跳鞋', emoji: '⚡', effect: '+20% 額外潛力', desc: '每天累計30分鐘跳躍或慢跑。' },
+      { id: 'shield', name: '營養護盾', emoji: '🛡️', effect: '防禦炸物攻擊', desc: '避免炸物、泡麵、甜食。' }
+    ];
+
+    const ENEMIES = [
+      { name: '油炸物軍團', desc: '加速生長板關閉！縮短遊戲時間。', emoji: '🍟' },
+      { name: '甜食怪', desc: '直接扣分！抑制生長激素分泌。', emoji: '🍰' },
+      { name: '熬夜惡魔', desc: '最強敵人！偷走最重要的生長激素。', emoji: '🌑' }
+    ];
+
+    // --- Helpers: localStorage keys, date ---
+    const LS_KEY = 'hrm_state_v1';
+    const todayKey = () => {
+      const d = new Date();
+      return d.toISOString().slice(0,10);
+    };
+
+    // --- Audio helper (簡單按鈕音) ---
+    function useClickSound() {
+      const audioRef = useRef(null);
+      useEffect(() => {
+        const ctx = (typeof AudioContext !== 'undefined') ? new (window.AudioContext || window.webkitAudioContext)() : null;
+        audioRef.current = ctx;
+      }, []);
+      const play = () => {
+        const ctx = audioRef.current;
+        if (!ctx) return;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = 800;
+        g.gain.value = 0.05;
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start();
+        o.stop(ctx.currentTime + 0.08);
+      };
+      return { play };
+    }
+
+    // --- Start Screen ---
+    function StartScreen({ onStart }) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-300 to-sky-100 p-4 text-center">
+          <div className="mb-8 animate-bounce-slow">
+            <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-[0_4px_0_rgba(0,0,0,0.2)] font-pixel mb-2">身高攻略</h1>
+            <h2 className="text-3xl md:text-5xl font-bold text-yellow-300 drop-shadow-[0_4px_0_rgba(0,0,0,0.2)] font-pixel">大作戰!</h2>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full border-4 border-black">
+            <p className="text-gray-600 mb-6 font-bold">一場屬於你的身高冒險任務，現正載入中...</p>
+            <div className="space-y-2 mb-8">
+              <div className="h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-400">
+                <div className="h-full bg-green-500 w-full animate-pulse"></div>
+              </div>
+              <p className="text-xs text-right text-gray-500">SYSTEM LOADING...</p>
+            </div>
+            <button onClick={onStart} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded border-b-4 border-blue-800 active:border-b-0 active:mt-1 transition-all text-xl font-pixel">START GAME</button>
+          </div>
+
+          <p className="mt-8 text-sky-700 text-sm font-bold">© 2025 NotebookLM Project</p>
+        </div>
+      );
+    }
+
+    // --- Character Select ---
+    function CharacterSelect({ onSelect, loadState }) {
+      return (
+        <div className="min-h-screen bg-slate-100 p-4 flex flex-col items-center">
+          <h2 className="text-3xl font-bold text-slate-800 mb-8 mt-4 font-pixel">選擇你的挑戰者</h2>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
+            {Object.entries(CHARACTERS).map(([key,char]) => (
+              <div key={key} onClick={() => onSelect(key)} tabIndex="0"
+                className="bg-white p-6 rounded-xl border-4 border-slate-200 hover:border-blue-500 cursor-pointer transition-all hover:scale-105 group focus:outline-none focus:ring-2 focus:ring-blue-300"
+                role="button" aria-pressed="false">
+                <div className={`h-32 ${key==='BROTHER' ? 'bg-blue-100' : 'bg-yellow-100'} rounded-lg mb-4 flex items-center justify-center text-6xl`}>
+                  {key==='BROTHER' ? '👨‍🎓' : '👦'}
+                </div>
+                <h3 className={`text-2xl font-bold text-slate-800 mb-2 group-hover:${key==='BROTHER' ? 'text-blue-600' : 'text-yellow-600'}`}>{char.name}</h3>
+                <div className="space-y-2 text-sm text-slate-600">
+                  <p className="flex justify-between border-b pb-1"><span>基礎身高:</span> <span className="font-bold">{char.baseHeight} cm</span></p>
+                  <p className="flex justify-between border-b pb-1"><span>骨齡:</span> <span className="font-bold">{char.boneAge}</span></p>
+                  <p className="flex justify-between border-b pb-1"><span>任務:</span> <span className="font-bold text-red-500">{char.mission}</span></p>
+                </div>
+                <p className="mt-4 text-xs bg-slate-100 p-2 rounded text-slate-500">"{char.desc}"</p>
+
+                {/* quick load note */}
+                {loadState && loadState.selected === key && (
+                  <div className="mt-3 text-xs text-green-700 font-bold">已載入：今日模擬紀錄存在 (點選繼續)</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // --- Simulator (separated so Dashboard can embed) ---
+    function Simulator({ characterKey, onResultSaved }) {
+      const char = CHARACTERS[characterKey];
+      const [checks, setChecks] = useState(() => {
+        const saved = loadState();
+        const today = todayKey();
+        return (saved && saved[characterKey] && saved[characterKey].checks && saved[characterKey].checks[today]) ? saved[characterKey].checks[today] : { sleep:false, noFried:false, exercise:false, noSugar:false };
+      });
+      const [showResult, setShowResult] = useState(false);
+      const [score, setScore] = useState(0);
+      const [history, setHistory] = useState(() => {
+        const saved = loadState();
+        return (saved && saved[characterKey] && saved[characterKey].history) ? saved[characterKey].history : [];
+      });
+      const [soundOn, setSoundOn] = useState(() => {
+        const s = localStorage.getItem('hrm_sound'); return s === null ? true : s === '1';
+      });
+      const clickSound = useClickSound();
+
+      useEffect(() => {
+        localStorage.setItem('hrm_sound', soundOn ? '1' : '0');
+      }, [soundOn]);
+
+      function handleCheck(k) {
+        setChecks(prev => {
+          const next = { ...prev, [k]: !prev[k] };
+          savePartial(characterKey, { checks: { [todayKey()]: next } });
+          if (soundOn) clickSound.play();
+          return next;
+        });
+      }
+
+      function calculate() {
+        let s = 0;
+        if (checks.sleep) s += 40;
+        if (checks.noFried) s += 20;
+        if (checks.exercise) s += 25;
+        if (checks.noSugar) s += 15;
+        setScore(s);
+        setShowResult(true);
+        // compute predicted height
+        const pred = predictHeight(char.baseHeight, s, characterKey);
+        const rec = { date: todayKey(), score: s, predicted: pred.toFixed(1), checks };
+        const newHistory = [rec].concat(history).slice(0,10);
+        setHistory(newHistory);
+        savePartial(characterKey, { history: newHistory });
+        if (onResultSaved) onResultSaved(rec);
+      }
+
+      function resetToday() {
+        setChecks({ sleep:false, noFried:false, exercise:false, noSugar:false });
+        setShowResult(false);
+        setScore(0);
+        removeToday(characterKey);
+      }
+
+      function predictHeight(base, s) {
+        // 簡單模型：分數轉換成額外 cm（比例可調）
+        // 0-100 -> 0 ~ +3.5 cm for younger, 0 ~ +2.0 cm for brother
+        const ratio = (characterKey === 'YOUNGER') ? 3.5/100 : 2.0/100;
+        return base + (s * ratio);
+      }
+
+      const predictedHeight = predictHeight(char.baseHeight, score);
+      const progressPct = Math.min(100, Math.round((score/100)*100));
+
+      return (
+        <div className="space-y-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow border border-slate-200 p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="font-bold text-xl mb-1">今日行動模擬</h3>
+                <p className="text-sm text-slate-500">誠實勾選今天的行為，系統會預測你的短期潛力。</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm flex items-center gap-2">
+                  <input type="checkbox" checked={soundOn} onChange={() => setSoundOn(v => !v)} />
+                  聲音
+                </label>
+              </div>
+            </div>
+
+            <div className="space-y-3 mb-4">
+              <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-slate-50">
+                <input aria-label="睡覺" type="checkbox" checked={checks.sleep} onChange={() => handleCheck('sleep')} className="w-5 h-5" />
+                <span>我今天有在 10:30 前睡著 (🌙)</span>
+              </label>
+              <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-slate-50">
+                <input aria-label="不吃炸物" type="checkbox" checked={checks.noFried} onChange={() => handleCheck('noFried')} className="w-5 h-5" />
+                <span>我今天完全沒吃炸物/泡麵 (🍟)</span>
+              </label>
+              <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-slate-50">
+                <input aria-label="運動" type="checkbox" checked={checks.exercise} onChange={() => handleCheck('exercise')} className="w-5 h-5" />
+                <span>我有運動到流汗喘氣 (🏃)</span>
+              </label>
+              <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-slate-50">
+                <input aria-label="不吃甜食" type="checkbox" checked={checks.noSugar} onChange={() => handleCheck('noSugar')} className="w-5 h-5" />
+                <span>我今天沒喝含糖飲料/吃甜點 (🍹)</span>
+              </label>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={calculate} className="flex-1 bg-slate-800 text-white py-3 rounded-lg font-bold hover:bg-slate-700 transition">查看預測結局</button>
+              <button onClick={resetToday} className="px-4 py-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">重置當日</button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow border border-slate-200 p-6">
+            <h4 className="font-bold mb-2">即時預測</h4>
+            <div className="mb-3 text-sm text-slate-600">基礎身高：<span className="font-bold">{char.baseHeight} cm</span></div>
+            <div className="progress-track p-1 rounded-full mb-2">
+              <div className="progress-fill" style={{
+                width: showResult ? `${progressPct}%` : `${(Object.values(checks).filter(Boolean).length/4)*100}%`,
+                background: showResult ? (progressPct >= 90 ? 'linear-gradient(90deg,#16a34a,#34d399)' : progressPct >= 60 ? 'linear-gradient(90deg,#2563eb,#60a5fa)' : 'linear-gradient(90deg,#ef4444,#f97316)') : 'linear-gradient(90deg,#c7d2fe,#fef3c7)'
+              }}></div>
+            </div>
+            <div className="flex justify-between text-sm text-slate-700">
+              <div>分數：<span className="font-bold">{score}</span></div>
+              <div>預測：<span className="font-bold">{predictedHeight.toFixed(1)} cm</span></div>
+            </div>
+
+            {showResult && (
+              <div className="mt-4 p-3 rounded border border-slate-100 bg-slate-50">
+                <ResultPanel score={score} predicted={predictedHeight} />
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-xl shadow border border-slate-200 p-6">
+            <h4 className="font-bold mb-2">模擬歷史（最近 10 筆）</h4>
+            {history.length === 0 ? (
+              <p className="text-sm text-slate-500">尚無紀錄。完成一次模擬將會被儲存。</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {history.map((h, idx) => (
+                  <li key={idx} className="flex justify-between items-center p-2 border rounded">
+                    <div>
+                      <div className="font-bold">{h.date} · 分數 {h.score}</div>
+                      <div className="text-xs text-slate-600">預測 {h.predicted} cm · {Object.entries(h.checks).filter(([k,v])=>v).map(([k])=>k).join(', ') || '無'}</div>
+                    </div>
+                    <div className="text-xs text-slate-500">儲存</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function ResultPanel({ score, predicted }) {
+      if (score >= 90) {
+        return <div><h5 className="text-lg font-bold text-green-600">True Ending: 170cm+</h5><p className="text-sm text-slate-600">太強了！這是傳說中的真正結局！完美執行所有任務。</p></div>;
+      }
+      if (score >= 60) {
+        return <div><h5 className="text-lg font-bold text-blue-600">Normal Ending: 166cm</h5><p className="text-sm text-slate-600">普通結局。有努力，但偶爾偷懶。還不錯，但可以更好。</p></div>;
+      }
+      return <div><h5 className="text-lg font-bold text-red-600">Bad Ending: 163cm</h5><p className="text-sm text-slate-600">危險！需要提高生活習慣強度，現在放棄會影響未來。</p></div>;
+    }
+
+    // --- Dashboard ---
+    function Dashboard({ characterKey, onBack }) {
+      const char = CHARACTERS[characterKey];
+      const [activeTab, setActiveTab] = useState('status');
+
+      function handleResultSaved(rec) {
+        // 可用於通知或 UI 更新 (目前不做額外處理)
+      }
+
+      return (
+        <div className="min-h-screen bg-slate-50 pb-20">
+          <div className="bg-slate-800 text-white p-4 sticky top-0 z-10 shadow-md">
+            <div className="max-w-3xl mx-auto flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <button onClick={onBack} aria-label="返回" className="p-1 hover:bg-slate-700 rounded"><span role="img" aria-label="home">🏠</span></button>
+                <span className="font-bold font-pixel text-lg">{char.name} 的攻略</span>
+              </div>
+              <div className="text-xs bg-slate-700 px-2 py-1 rounded">目標: 170cm+</div>
+            </div>
+          </div>
+
+          <div className="max-w-3xl mx-auto p-4 space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className={`p-4 ${characterKey==='BROTHER' ? 'bg-blue-100' : 'bg-yellow-100'} flex justify-between items-center`}>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">{char.mission}</h2>
+                  <p className="text-slate-600 text-sm">{char.status}</p>
+                </div>
+                <div className="text-4xl">{characterKey==='BROTHER' ? '👨‍🎓' : '👦'}</div>
+              </div>
+              <div className="p-4">
+                <p className="text-slate-700 mb-4 font-medium">{char.desc}</p>
+                <div className="bg-slate-50 p-3 rounded border border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-500 mb-2 uppercase">醫師的戰略分析</h3>
+                  <p className="text-slate-800">{char.strategy}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex bg-white rounded-lg shadow-sm p-1 border border-slate-200">
+              <button onClick={() => setActiveTab('status')} className={`flex-1 py-2 text-sm font-bold rounded ${activeTab === 'status' ? 'bg-blue-100 text-blue-700' : 'text-slate-500'}`}>裝備庫</button>
+              <button onClick={() => setActiveTab('enemies')} className={`flex-1 py-2 text-sm font-bold rounded ${activeTab === 'enemies' ? 'bg-red-100 text-red-700' : 'text-slate-500'}`}>怪物圖鑑</button>
+              <button onClick={() => setActiveTab('sim')} className={`flex-1 py-2 text-sm font-bold rounded ${activeTab === 'sim' ? 'bg-green-100 text-green-700' : 'text-slate-500'}`}>結局模擬</button>
+            </div>
+
+            {activeTab === 'status' && (
+              <div className="space-y-4 animate-fade-in">
+                <h3 className="font-bold text-slate-800 flex items-center gap-2">⚔️ 強力道具 (Good Habits)</h3>
+                {ITEMS.map(item => (
+                  <div key={item.id} className="p-4 rounded-xl border bg-white flex gap-4">
+                    <div className="bg-white p-2 rounded-full h-fit shadow-sm text-2xl">{item.emoji}</div>
+                    <div>
+                      <h4 className="font-bold text-lg">{item.name}</h4>
+                      <span className="inline-block bg-white px-2 py-0.5 rounded text-xs font-bold text-slate-500 mb-2 border border-slate-200 shadow-sm">{item.effect}</span>
+                      <p className="text-sm text-slate-700">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+                <div className="mt-6 p-4 bg-gray-100 rounded-xl border border-gray-200 opacity-90">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-gray-700">課金選項：長高針</h4>
+                    <span className="text-xs bg-gray-200 px-2 py-1 rounded">Pay-to-Win</span>
+                  </div>
+                  <p className="text-sm text-gray-600">代價：80-100萬，打700針。僅多長3-5公分。</p>
+                  <p className="text-sm font-bold text-gray-800 mt-2">結論：自己努力睡覺運動 CP值最高！</p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'enemies' && (
+              <div className="space-y-4 animate-fade-in">
+                <h3 className="font-bold text-slate-800 flex items-center gap-2 text-red-600">⚠️ 敵軍警報 (Bad Habits)</h3>
+                {ENEMIES.map((enemy, idx) => (
+                  <div key={idx} className="bg-red-50 p-4 rounded-xl border border-red-200 flex items-center gap-4">
+                    <div className="bg-white p-3 rounded-full shadow-sm text-xl">{enemy.emoji}</div>
+                    <div>
+                      <h4 className="font-bold text-red-800">{enemy.name}</h4>
+                      <p className="text-sm text-red-700">{enemy.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'sim' && (
+              <Simulator characterKey={characterKey} onResultSaved={() => {}} />
+            )}
+
+          </div>
+        </div>
+      );
+    }
+
+    // --- Local state storage helpers ---
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      } catch(e) {
+        return {};
+      }
+    }
+    function saveState(obj) {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(obj));
+      } catch(e) {}
+    }
+    function savePartial(characterKey, partial) {
+      const s = loadState();
+      s.selected = s.selected || characterKey;
+      s[characterKey] = s[characterKey] || {};
+      // merge checks/history etc
+      Object.entries(partial).forEach(([k,v]) => {
+        if (k === 'checks') {
+          s[characterKey].checks = Object.assign({}, s[characterKey].checks || {}, v);
+        } else if (k === 'history') {
+          s[characterKey].history = v;
+        } else {
+          s[characterKey][k] = v;
+        }
+      });
+      saveState(s);
+    }
+    function removeToday(characterKey) {
+      const s = loadState();
+      const t = todayKey();
+      if (s[characterKey] && s[characterKey].checks) {
+        delete s[characterKey].checks[t];
+      }
+      saveState(s);
+    }
+
+    // --- Main App ---
+    function App() {
+      const [view, setView] = useState('start');
+      const [selectedChar, setSelectedChar] = useState(null);
+      const [loadedState, setLoadedState] = useState(() => loadState());
+
+      useEffect(() => {
+        setLoadedState(loadState());
+      }, []);
+
+      function handleStart() {
+        setView('select');
+      }
+
+      function handleSelectChar(key) {
+        setSelectedChar(key);
+        // save selection
+        const s = loadState(); s.selected = key; saveState(s);
+        setView('dashboard');
+      }
+
+      function handleBack() {
+        setView('select');
+        setSelectedChar(null);
+      }
+
+      return (
+        <div className="antialiased text-slate-800 font-sans bg-slate-50 min-h-screen">
+          <style>{`
+            .font-pixel { font-family: 'DotGothic16', sans-serif; }
+          `}</style>
+
+          {view === 'start' && <StartScreen onStart={handleStart} />}
+          {view === 'select' && <CharacterSelect onSelect={handleSelectChar} loadState={loadedState} />}
+          {view === 'dashboard' && selectedChar && <Dashboard characterKey={selectedChar} onBack={handleBack} />}
+        </div>
+      );
+    }
+
+    // render
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
