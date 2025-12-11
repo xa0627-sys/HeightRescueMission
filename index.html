@@ -173,10 +173,6 @@
         const saved = loadState();
         return (saved && saved[characterKey] && saved[characterKey].history) ? saved[characterKey].history : [];
       });
-      const [records, setRecords] = useState(() => {
-        const saved = loadState();
-        return (saved && saved[characterKey] && saved[characterKey].records) ? saved[characterKey].records : [];
-      });
       const [soundOn, setSoundOn] = useState(() => {
         const s = localStorage.getItem('hrm_sound'); return s === null ? true : s === '1';
       });
@@ -209,18 +205,6 @@
         const newHistory = [rec].concat(history).slice(0,10);
         setHistory(newHistory);
         savePartial(characterKey, { history: newHistory });
-        if (onResultSaved) onResultSaved(rec);
-      }
-
-      function saveTodayRecord() {
-        if (!showResult) return;
-        const rec = { date: todayKey(), score, predicted: predictedHeight.toFixed(1), checks };
-        setRecords(prev => {
-          const filtered = prev.filter(r => r.date !== rec.date);
-          const updated = [rec, ...filtered].slice(0, 30);
-          savePartial(characterKey, { records: updated });
-          return updated;
-        });
         if (onResultSaved) onResultSaved(rec);
       }
 
@@ -277,7 +261,7 @@
             </div>
 
             <div className="flex gap-3">
-              <button data-testid="compute-result" onClick={calculate} className="flex-1 bg-slate-800 text-white py-3 rounded-lg font-bold hover:bg-slate-700 transition">查看預測結局</button>
+              <button onClick={calculate} className="flex-1 bg-slate-800 text-white py-3 rounded-lg font-bold hover:bg-slate-700 transition">查看預測結局</button>
               <button onClick={resetToday} className="px-4 py-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">重置當日</button>
             </div>
           </div>
@@ -299,10 +283,6 @@
             {showResult && (
               <div className="mt-4 p-3 rounded border border-slate-100 bg-slate-50">
                 <ResultPanel score={score} predicted={predictedHeight} />
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button data-testid="save-today" onClick={saveTodayRecord} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-500 transition" disabled={!showResult}>💾 儲存今日成果</button>
-                  {records.find(r => r.date === todayKey()) && <span className="text-xs text-green-700 font-bold">已儲存今天的紀錄！</span>}
-                </div>
               </div>
             )}
           </div>
@@ -312,34 +292,14 @@
             {history.length === 0 ? (
               <p className="text-sm text-slate-500">尚無紀錄。完成一次模擬將會被儲存。</p>
             ) : (
-              <ul className="space-y-2 text-sm" data-testid="history-list">
+              <ul className="space-y-2 text-sm">
                 {history.map((h, idx) => (
-                  <li key={idx} className="flex justify-between items-center p-2 border rounded" data-testid="history-item">
+                  <li key={idx} className="flex justify-between items-center p-2 border rounded">
                     <div>
                       <div className="font-bold">{h.date} · 分數 {h.score}</div>
                       <div className="text-xs text-slate-600">預測 {h.predicted} cm · {Object.entries(h.checks).filter(([k,v])=>v).map(([k])=>k).join(', ') || '無'}</div>
                     </div>
                     <div className="text-xs text-slate-500">儲存</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="bg-white rounded-xl shadow border border-slate-200 p-6">
-            <h4 className="font-bold mb-2">成果檔案</h4>
-            <p className="text-sm text-slate-500 mb-3">按下「儲存今日成果」後，這裡會留下你的歷程，方便隨時回顧。</p>
-            {records.length === 0 ? (
-              <p className="text-sm text-slate-500">尚無已儲存的成果。</p>
-            ) : (
-              <ul className="space-y-2 text-sm" data-testid="records-list">
-                {records.map((r, idx) => (
-                  <li key={idx} className="p-3 border rounded flex justify-between items-center bg-slate-50" data-testid="record-item">
-                    <div>
-                      <div className="font-bold">{r.date} · 分數 {r.score}</div>
-                      <div className="text-xs text-slate-600">預測 {r.predicted} cm · {Object.entries(r.checks).filter(([k,v])=>v).map(([k])=>k).join(', ') || '無'}</div>
-                    </div>
-                    <span className="text-xs text-blue-600 font-bold">已存檔</span>
                   </li>
                 ))}
               </ul>
