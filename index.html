@@ -532,5 +532,152 @@
     // render
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
+
+    <section class="bg-slate-900 text-white py-6">
+      <div class="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <p class="text-sm uppercase tracking-[0.2em] text-slate-300">延伸閱讀</p>
+          <h2 class="text-2xl font-bold">身高攻略 · 相簿 & 文章</h2>
+          <p class="text-sm text-slate-300">快速前往最新的照片集與故事，把攻略分享到群組吧！</p>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <a href="#photo-album" class="px-4 py-2 rounded-lg bg-white text-slate-900 font-bold shadow hover:-translate-y-0.5 transition">相簿</a>
+          <a href="#mission-article" class="px-4 py-2 rounded-lg bg-sky-400 text-slate-900 font-bold shadow hover:-translate-y-0.5 transition">閱讀文章</a>
+          <a href="blogfotos/_1.png" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-lg border border-white/50 text-white font-bold hover:bg-white/10">快速看封面照</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="photo-album" class="bg-white py-12">
+      <div class="max-w-5xl mx-auto px-4 space-y-6">
+        <div class="flex flex-col gap-2">
+          <p class="text-sm font-bold text-sky-600">PHOTO ALBUM</p>
+          <h3 class="text-3xl font-bold text-slate-900">兄弟的成長任務 · 實景相簿</h3>
+          <p class="text-slate-600">嚴選此次門診與日常紀錄的 12 張照片，點擊圖片可放大檢視。連結已就緒，方便分享給家人一起參戰。</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_1.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_1.png" alt="兄弟出發前往醫院" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">出發前的期待時刻。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_1.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_2.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_2.png" alt="候診區的兄弟" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">候診區靜待叫號，緊張又期待。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_2.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_3.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_3.png" alt="診間內的討論" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">醫師說明 X 光結果時的凝重氣氛。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_3.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_4.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_4.png" alt="醫師指著骨齡數據" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">骨齡判決書，哥哥只剩最後衝刺。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_4.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_5.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_5.png" alt="弟弟的骨齡分析" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">弟弟還在黃金期，飲食要小心。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_5.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_6.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_6.png" alt="課金選項的說明" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">700 針長高針的 CP 值，醫師直接搖頭。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_6.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_7.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_7.png" alt="AI 生成的吉伊卡哇簡報" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">NotebookLM 生成的吉伊卡哇攻略封面。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_7.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_8.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_8.png" alt="哥哥的最終衝刺任務" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">哥哥的最終衝刺：突破 170cm 大關。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_8.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_9.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_9.png" alt="弟弟的油炸物警戒" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">弟弟對抗油炸物軍團與甜食怪。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_9.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_10.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_10.png" alt="黃金睡眠藥水的條件" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">黃金睡眠藥水：10:30 前睡著才能啟動。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_10.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_11.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_11.png" alt="兄弟的反應" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">兄弟看完簡報後驚呼 AI 太強。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_11.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+
+          <figure class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <a href="blogfotos/_12.png" target="_blank" rel="noreferrer" class="block overflow-hidden">
+              <img src="blogfotos/_12.png" alt="深夜還在盯螢幕的兄弟" class="w-full h-48 object-cover hover:scale-105 transition" />
+            </a>
+            <figcaption class="p-3 text-sm text-slate-700">深夜 11 點，兩位玩家依舊在線。<a class="text-sky-600 font-bold ml-2" href="blogfotos/_12.png" target="_blank" rel="noreferrer">看大圖</a></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="mission-article" class="bg-slate-50 py-12">
+      <div class="max-w-5xl mx-auto px-4">
+        <article class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+          <header class="space-y-2">
+            <p class="text-xs font-bold tracking-[0.2em] text-slate-500">STORY MODE</p>
+            <h3 class="text-3xl font-bold text-slate-900">吉伊卡哇身高攻略大作戰 · 爸爸的無奈日記</h3>
+            <p class="text-slate-600">上週帶兩兄弟去「朝聖」成長科醫師，身為一名信奉科學的父親，拿到的判決書卻比股市崩盤還讓人心驚。</p>
+          </header>
+
+          <p class="text-slate-700">醫師指著 X 光片，冷靜地宣讀數據：哥哥骨齡 16 歲，生長板已經進入「打烊結帳」階段，只剩最後三個月的「黃金衝刺期」。弟弟骨齡 13.3 歲，雖然還在黃金期，但如果不努力，預估身高落在 166 公分。醫師補了一刀：「這身高在女生堆裡，大概就是路人甲。」</p>
+
+          <p class="text-slate-700">更絕望的是「課金選項」——長高針。兩年要打 700 針，花費 80 到 100 萬，結果只能多長 3 到 5 公分。醫師搖搖頭說：「這 CP 值極低，還是當個 Free-to-Play 的免費玩家最實在。」</p>
+
+          <p class="text-slate-700">事態嚴重！為了守護孩子的身高（還有我的荷包），我決定召喚黑科技。我把醫囑錄音檔丟給 Gemini，再餵給 NotebookLM，下達指令：「請把這些殘酷的醫學事實，變成青少年看得下去的 RPG 攻略！」</p>
+
+          <p class="text-slate-700">結果不到幾分鐘，AI 吐出了一份「吉伊卡哇身高攻略大作戰」。內容精美到讓我跪了：哥哥的任務：「最終衝刺」，目標突破 170 大關；弟弟的任務：對抗「油炸物軍團」和「甜食怪」；最強神武：「黃金睡眠藥水」，條件是晚上 10:30 前完全睡著。</p>
+
+          <p class="text-slate-700">我得意地把這份「吉伊卡哇」簡報秀給兩兄弟看，心想這下總該買單了吧？兩兄弟看完雙眼發光，驚呼：「哇！這 AI 也太強了吧！連吉伊卡哇都有！」</p>
+
+          <p class="text-slate-700">我心中暗喜，以為父愛與科技終於戰勝了青春期的頑劣。結果呢？他們帶著對 AI 技術的崇拜，開始要 AI 幫忙生成貓咪大戰爭的網站。時鐘指向晚上 11 點，傳說中的「黃金睡眠時段」已經開始，而這兩位玩家依舊精神奕奕，完全沒有要登出的意思。</p>
+
+          <p class="text-slate-700 font-bold">Gemini 大神，你算得出骨齡，算得出 CP 值，但你算得出來，為什麼爸爸說的話，比 NPC 的台詞還沒人要聽嗎？</p>
+
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">#長高攻略</span>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">#NotebookLM</span>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">#吉伊卡哇搶救身高</span>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">#百萬課金不如早點睡</span>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">#爸爸的無奈</span>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">#FreeToPlay最難玩</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
   </body>
 </html>
